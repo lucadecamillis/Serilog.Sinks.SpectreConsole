@@ -18,14 +18,20 @@ namespace Serilog.Sinks.Spectre
 		/// events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.</param>
 		/// <param name="levelSwitch">A switch allowing the pass-through minimum level
 		/// to be changed at runtime.</param>
+		/// <param name="renderTextAsMarkup">Instruct the Sink to render plain test as markup, allowing
+		/// markup syntax when using the logger</param>
 		/// <returns>Configuration object allowing method chaining.</returns>
 		public static LoggerConfiguration Spectre(
 			this LoggerSinkConfiguration loggerConfiguration,
 			string outputTemplate = DefaultConsoleOutputTemplate,
 			LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-			LoggingLevelSwitch levelSwitch = null)
+			LoggingLevelSwitch levelSwitch = null,
+			bool renderTextAsMarkup = true)
 		{
-			return loggerConfiguration.Sink(new SpectreConsoleSink(outputTemplate), restrictedToMinimumLevel, levelSwitch);
+			return loggerConfiguration.Sink(
+				new SpectreConsoleSink(outputTemplate, renderTextAsMarkup),
+				restrictedToMinimumLevel,
+				levelSwitch);
 		}
 	}
 }

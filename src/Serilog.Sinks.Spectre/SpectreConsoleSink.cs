@@ -14,9 +14,9 @@ namespace Serilog.Sinks.Spectre
 	{
 		readonly ITemplateTokenRenderer[] renderers;
 
-		public SpectreConsoleSink(string outputTemplate)
+		public SpectreConsoleSink(string outputTemplate, bool renderTextAsMarkup)
 		{
-			this.renderers = InitializeRenders(outputTemplate).ToArray();
+			this.renderers = InitializeRenders(outputTemplate, renderTextAsMarkup).ToArray();
 		}
 
 		public void Emit(LogEvent logEvent)
@@ -34,14 +34,15 @@ namespace Serilog.Sinks.Spectre
 			global::Spectre.Console.AnsiConsole.Write(collection);
 		}
 
-		private static IEnumerable<ITemplateTokenRenderer> InitializeRenders(string outputTemplate)
+		private static IEnumerable<ITemplateTokenRenderer> InitializeRenders(
+			string outputTemplate,
+			bool renderTextAsMarkup)
 		{
 			var template = new MessageTemplateParser().Parse(outputTemplate);
 
 			foreach (MessageTemplateToken token in template.Tokens)
 			{
-				ITemplateTokenRenderer renderer;
-				if (TryInitializeRender(token, out renderer))
+				if (TryInitializeRender(token, renderTextAsMarkup, out ITemplateTokenRenderer renderer))
 				{
 					yield return renderer;
 				}
@@ -50,6 +51,7 @@ namespace Serilog.Sinks.Spectre
 
 		private static bool TryInitializeRender(
 			MessageTemplateToken token,
+			bool renderTextAsMarkup,
 			out ITemplateTokenRenderer renderer)
 		{
 			if (token is TextToken tt)
@@ -60,7 +62,7 @@ namespace Serilog.Sinks.Spectre
 
 			if (token is PropertyToken pt)
 			{
-				return TryInitializePropertyRender(pt, out renderer);
+				return TryInitializePropertyRender(pt, renderTextAsMarkup, out renderer);
 			}
 
 			renderer = null;
@@ -69,13 +71,14 @@ namespace Serilog.Sinks.Spectre
 
 		private static bool TryInitializePropertyRender(
 			PropertyToken propertyToken,
+			bool renderTextAsMarkup,
 			out ITemplateTokenRenderer renderer)
 		{
-			renderer = GetPropertyRender(propertyToken);
+			renderer = GetPropertyRender(propertyToken, renderTextAsMarkup);
 			return renderer != null;
 		}
 
-		private static ITemplateTokenRenderer GetPropertyRender(PropertyToken propertyToken)
+		private static ITemplateTokenRenderer GetPropertyRender(PropertyToken propertyToken, bool renderTextAsMarkup)
 		{
 			switch (propertyToken.PropertyName)
 			{
@@ -93,7 +96,7 @@ namespace Serilog.Sinks.Spectre
 					}
 				case OutputProperties.MessagePropertyName:
 					{
-						return new MessageTemplateOutputTokenRenderer(propertyToken);
+						return new MessageTemplateOutputTokenRenderer(propertyToken, renderTextAsMarkup);
 					}
 				case OutputProperties.TimestampPropertyName:
 					{

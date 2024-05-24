@@ -1,19 +1,20 @@
 using System.Collections.Generic;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.Spectre.Extensions;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
 namespace Serilog.Sinks.Spectre.Renderers
 {
-	public class MessageTemplateOutputTokenRenderer : ITemplateTokenRenderer
+    public class MessageTemplateOutputTokenRenderer : ITemplateTokenRenderer
 	{
 		readonly PropertyToken token;
+		readonly bool renderTextAsMarkup;
 
-		public MessageTemplateOutputTokenRenderer(PropertyToken token)
+		public MessageTemplateOutputTokenRenderer(PropertyToken token, bool renderTextAsMarkup)
 		{
 			this.token = token;
+			this.renderTextAsMarkup = renderTextAsMarkup;
 		}
 
 		public IEnumerable<IRenderable> Render(LogEvent logEvent)
@@ -22,8 +23,15 @@ namespace Serilog.Sinks.Spectre.Renderers
 			{
 				if (token is TextToken t)
 				{
-					// Render message as markup
-					yield return new Markup(t.Text);
+					if (this.renderTextAsMarkup)
+					{
+						// Render message as markup
+						yield return new Markup(t.Text);
+					}
+					else
+					{
+						yield return new Text(t.Text);
+					}
 				}
 
 				if (token is PropertyToken p)
