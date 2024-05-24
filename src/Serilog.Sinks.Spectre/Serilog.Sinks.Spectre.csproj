@@ -9,7 +9,7 @@
     <PackageDescription>C# Serilog sink for Spectre.Console</PackageDescription>
     <PackageProjectUrl>https://github.com/lucadecamillis/serilog-sinks-spectre</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lucadecamillis/serilog-sinks-spectre</RepositoryUrl>
-    <Version>0.4.1</Version>
+    <Version>0.5</Version>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <DebugSymbols>true</DebugSymbols>
